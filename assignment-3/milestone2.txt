@@ -1,0 +1,21 @@
+
+Milestone 2:
+
+1. 
+    MATCH (a:MethodDeclaration)-[:CALLBY]->(c:MethodDeclaration)
+    With collect(c) as xyz,a
+    where a.isConstructor = 'True' and a.modifiers =~ '.*private.*' and ALL(i in xyz where i.modifiers contains 'static') 
+    with collect(a) as method_list
+    MATCH (s:TypeDeclaration)-[:member]->(e:MethodDeclaration)
+    where s.entity_type = 'class' and e in method_list
+    return s
+
+
+2. 
+    match (class1:TypeDeclaration)-[:member]->(m:MethodDeclaration)-[:parameter]->(t:SingleVariableDeclaration)-[:type]->(typ) 
+    where m.isConstructor='True' and m.modifiers contains 'private' 
+    with class1, m, t, typ
+    match (class1)-[:member]->(c) 
+    where c.simplename=typ.name or c.name=typ.name
+    return class1, m, t, typ, c
+
