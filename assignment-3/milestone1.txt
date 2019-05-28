@@ -1,0 +1,43 @@
+1.Find nodes for classes and interfaces.
+        MATCH(n) WHERE n.entity_type="interface" OR n.entity_type="class" RETURN n
+ 
+2. Find all classes of a given package:
+        MATCH (n) WHERE (n.file =~ '.*/producer-consumer/.*' OR n.file =~ 'producer-consumer/.*') AND n.entity_type="class" return n
+ 
+3. Find methods both inherited and declared ones:
+        MATCH(node:TypeDeclaration) where node.entity_type="class" AND node.simplename="Sword" with node MATCH(node)-[: member]->(n:MethodDeclaration) return n
+ 
+4.Find transitive closure of types (find ALL distinct ancestors of a specific type). PS: The ancestors should be grouped by the type you are trying to find the ancestors for.
+        MATCH (child:MethodDeclaration)<-[]-(par) WITH par RETURN DISTINCT labels(par), count(*)
+ 
+5.Find If statements where the condition is boolean (true/false) value. Eg.: if(false) {}
+6.Find If statements where the condition is not boolean value (an expression).
+ 
+7. Find package of a given class.
+        MATCH(node) where node.entity_type="class" AND node.simplename="Sword" return SUBSTRING(node.longname, 0, size(node.longname)-size(node.simplename)-1)
+ 
+8. Find total cyclomatic complexity of a class as sum of cyclomatic complexity of each method that belongs to it, the methods include both inherited and derived.
+        MATCH(node:TypeDeclaration) where node.entity_type="class" AND node.simplename="Sword" with node MATCH(node)-[: member]->(method:MethodDeclaration) return sum(toInt(method.Cyclomatic))
+ 
+9. Find all methods with 10 or more statement.
+        MATCH(n:MethodDeclaration) WHERE toInt(n.CountStmt)>=10 return n
+ 
+10. Find all methods with 4 or more parameters. 
+        MATCH (n:MethodDeclaration)-[r:parameter]->() WITH n, COUNT(r) AS cr WHERE cr >= 4 RETURN n
+ 
+11. Find all methods with 50 or more lines of code.
+        MATCH(node:MethodDeclaration) where toInt(node.CountLineCode)>=50 return node
+ 
+12. Calculate Tight Class Cohesion metric of a class.
+        MATCH (n: TypeDeclaration)-[:member]->(m:MethodDeclaration)
+        WHERE n.entity_type = 'class' and n.simplename = 'Validator'
+        with collect(m) as method_list, tofloat(count(m)) as allconn
+        Match (m1)-[prop]->(m2)
+        where m1 in method_list and m2 in method_list
+        return (count(prop))/(allconn*(allconn-1))
+
+ 
+13. Find shortest path between type_declaration and CFG_EXIT_NODE using some apoc.
+        MATCH (src:TypeDeclaration), (dest:CFG_EXIT_NODE) with src, dest match path = shortestpath((src)-[*]-(dest)) return path limit 1
+    
+
