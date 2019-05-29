@@ -1,0 +1,32 @@
+1) Find the set of siblings of a node:
+
+        MATCH (n)-[:IS_CHILD_OF]->(m)<-[:IS_CHILD_OF]-(sib)
+        where not sib=n and id(n)=45
+        return sib, n
+
+2) Find first common ancestor of two nodes:
+
+        MATCH (child1)-[:IS_CHILD_OF*]->(par1) 
+        WITH child1,par1
+        MATCH (child2)-[:IS_CHILD_OF*]->(par2) 
+        WHERE child1.tag = "title" and child2.tag = "author" and par1 = par2 
+        WITH child1,par1
+        MATCH child_to_anc = (child1)-[:IS_CHILD_OF*]->(par1) 
+        return par1 
+        order by length(child_to_anc)
+        limit 1
+
+
+3) Find shortest path between two nodes:
+
+        MATCH (node1),(node2) where 
+        return shortestpath((node1)-[*]-(node2))
+        LIMIT 1
+
+4) Find all nodes filtered by an attribute or tag:
+
+        MATCH (n)-[:ATTRIBUTE]->(m) where n.tag="book" or m.tag="title"
+        return n
+
+
+
